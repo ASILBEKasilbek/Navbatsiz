@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Tashkilotlar ro‘yxati{% endblock %}
+{% block content %}
+<h1 class="text-3xl font-bold mb-6 text-gray-800">Tashkilotlar</h1>
+
+<form method="GET" class="mb-6 flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+    <select name="region" class="p-2 border rounded w-full md:w-1/3 focus:outline-none focus:ring-2 focus:ring-blue-600">
+        <option value="">Barcha hududlar</option>
+        {% for region in regions %}
+            <option value="{{ region.id }}" {% if selected_region == region.id|stringformat:"s" %}selected{% endif %}>{{ region.name }}</option>
+        {% endfor %}
+    </select>
+    <select name="category" class="p-2 border rounded w-full md:w-1/3 focus:outline-none focus:ring-2 focus:ring-blue-600">
+        <option value="">Barcha kategoriyalar</option>
+        {% for category in categories %}
+            <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>{{ category.name }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition">Filtrlash</button>
+</form>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for organization in organizations %}
+        <a href="{% url 'book_slot' organization.id %}" class="p-4 bg-white rounded-lg shadow hover:shadow-lg transition transform hover:-translate-y-1">
+            <h3 class="text-lg font-semibold text-blue-600">{{ organization.name }}</h3>
+            <p class="text-gray-600">{{ organization.address }}</p>
+            <p class="text-sm text-gray-500">{{ organization.region.name }} | {{ organization.category.name }}</p>
+        </a>
+    {% empty %}
+        <p class="text-gray-600 col-span-full">Hech qanday tashkilot topilmadi. Filtrlarni o‘zgartirib ko‘ring.</p>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}NavbatYo‘q.uz - Bosh sahifa{% endblock %}
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold mb-4 text-gray-800">Navbat oling, vaqtingizni tejang!</h1>
+    <p class="text-gray-600 mb-6">O‘zbekistondagi eng qulay navbat band qilish platformasiga xush kelibsiz!</p>
+    <form method="GET" class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 mb-6">
+        <input type="text" name="search" value="{{ search_query }}" placeholder="Tashkilot, manzil yoki hudud bo‘yicha qidirish..." class="p-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-600">
+        <button type="submit" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition">Qidirish</button>
+    </form>
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for organization in organizations %}
+        <a href="{% url 'book_slot' organization.id %}" class="p-4 bg-white rounded-lg shadow hover:shadow-lg transition transform hover:-translate-y-1">
+            <h3 class="text-lg font-semibold text-blue-600">{{ organization.name }}</h3>
+            <p class="text-gray-600">{{ organization.address }}</p>
+            <p class="text-sm text-gray-500">{{ organization.region.name }} | {{ organization.category.name }}</p>
+        </a>
+    {% empty %}
+        <p class="text-gray-600 col-span-full">Hech qanday tashkilot topilmadi. Qidiruv so‘zini o‘zgartirib ko‘ring.</p>
+    {% endfor %}
+</div>
+
+<div class="mt-6 text-center">
+    <a href="{% url 'organization_list' %}" class="text-blue-600 hover:underline text-lg">Barcha tashkilotlarni ko‘rish</a>
+</div>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Navbatni bekor qilish{% endblock %}
+{% block content %}
+<h1 class="text-3xl font-bold mb-6 text-gray-800">Navbatni bekor qilish</h1>
+<p class="text-gray-600 mb-4">Quyidagi navbatni bekor qilmoqchimisiz?</p>
+
+<div class="p-4 bg-white rounded-lg shadow mb-6">
+    <h3 class="text-lg font-semibold text-blue-600">{{ booking.time_slot.organization.name }}</h3>
+    <p class="text-gray-600">{{ booking.time_slot.start_time|date:"Y-m-d H:i" }} ({{ booking.time_slot.duration }} daqiqa)</p>
+    <p class="text-sm text-gray-500">Holati: {{ booking.get_status_display }}</p>
+    <p class="text-sm text-gray-500">Navbat kodi: {{ booking.booking_code }}</p>
+</div>
+
+<form method="POST" class="mb-6">
+    {% csrf_token %}
+    <button type="submit" class="bg-red-600 text-white p-2 rounded hover:bg-red-700 transition">Ha, bekor qilish</button>
+    <a href="{% url 'my_bookings' %}" class="ml-4 text-blue-600 hover:underline">Yo‘q, qaytish</a>
+</form>
+{% endblock %}

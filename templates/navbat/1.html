@@ -1,0 +1,147 @@
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}NavbatYo‘q.uz{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-gray-100 font-sans">
+    <header class="bg-blue-600 text-white p-4 shadow-md sticky top-0 z-10">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">
+                <a href="{% url 'homepage' %}">NavbatYo‘q.uz</a>
+            </h1>
+            <nav class="space-x-4">
+                <a href="{% url 'homepage' %}" class="hover:underline">Bosh sahifa</a>
+                <a href="{% url 'organization_list' %}" class="hover:underline">Tashkilotlar</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'my_bookings' %}" class="hover:underline">Mening navbatlarim</a>
+                    <a href="{% url 'logout' %}" class="hover:underline">Chiqish</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="hover:underline">Kirish</a>
+                    <a href="{% url 'signup' %}" class="hover:underline">Ro‘yxatdan o‘tish</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+    
+    <main class="container mx-auto p-4 min-h-screen">
+        {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="p-4 mb-2 rounded {% if message.tags == 'success' %}bg-green-100 text-green-800{% elif message.tags == 'error' %}bg-red-100 text-red-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% block content %}
+        {% endblock %}
+    </main>
+    
+    <footer class="bg-gray-800 text-white p-4">
+        <div class="container mx-auto text-center">
+            <p>© 2025 NavbatYo‘q.uz. Barcha huquqlar himoyalangan.</p>
+            <p>
+                <a href="#" class="hover:underline">Foydalanish shartlari</a> | 
+                <a href="#" class="hover:underline">Maxfiylik siyosati</a>
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
+
+<!-- templates/navbat/home.html -->
+{% extends 'base.html' %}
+{% block title %}NavbatYo‘q.uz - Bosh sahifa{% endblock %}
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold mb-4 text-gray-800">Navbat oling, vaqtingizni tejang!</h1>
+    <p class="text-gray-600 mb-6">O‘zbekistondagi eng qulay navbat band qilish platformasiga xush kelibsiz!</p>
+    <form method="GET" class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 mb-6">
+        <input type="text" name="search" value="{{ search_query }}" placeholder="Tashkilot, manzil yoki hudud bo‘yicha qidirish..." class="p-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-600">
+        <button type="submit" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition">Qidirish</button>
+    </form>
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for organization in organizations %}
+        <a href="{% url 'book_slot' organization.id %}" class="p-4 bg-white rounded-lg shadow hover:shadow-lg transition transform hover:-translate-y-1">
+            <h3 class="text-lg font-semibold text-blue-600">{{ organization.name }}</h3>
+            <p class="text-gray-600">{{ organization.address }}</p>
+            <p class="text-sm text-gray-500">{{ organization.region.name }} | {{ organization.category.name }}</p>
+        </a>
+    {% empty %}
+        <p class="text-gray-600 col-span-full">Hech qanday tashkilot topilmadi. Qidiruv so‘zini o‘zgartirib ko‘ring.</p>
+    {% endfor %}
+</div>
+
+<div class="mt-6 text-center">
+    <a href="{% url 'organization_list' %}" class="text-blue-600 hover:underline text-lg">Barcha tashkilotlarni ko‘rish</a>
+</div>
+{% endblock %}
+
+<!-- templates/navbat/organization_list.html -->
+{% extends 'base.html' %}
+{% block title %}Tashkilotlar ro‘yxati{% endblock %}
+{% block content %}
+<h1 class="text-3xl font-bold mb-6 text-gray-800">Tashkilotlar</h1>
+
+<form method="GET" class="mb-6 flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+    <select name="region" class="p-2 border rounded w-full md:w-1/3 focus:outline-none focus:ring-2 focus:ring-blue-600">
+        <option value="">Barcha hududlar</option>
+        {% for region in regions %}
+            <option value="{{ region.id }}" {% if selected_region == region.id|stringformat:"s" %}selected{% endif %}>{{ region.name }}</option>
+        {% endfor %}
+    </select>
+    <select name="category" class="p-2 border rounded w-full md:w-1/3 focus:outline-none focus:ring-2 focus:ring-blue-600">
+        <option value="">Barcha kategoriyalar</option>
+        {% for category in categories %}
+            <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>{{ category.name }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition">Filtrlash</button>
+</form>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for organization in organizations %}
+        <a href="{% url 'book_slot' organization.id %}" class="p-4 bg-white rounded-lg shadow hover:shadow-lg transition transform hover:-translate-y-1">
+            <h3 class="text-lg font-semibold text-blue-600">{{ organization.name }}</h3>
+            <p class="text-gray-600">{{ organization.address }}</p>
+            <p class="text-sm text-gray-500">{{ organization.region.name }} | {{ organization.category.name }}</p>
+        </a>
+    {% empty %}
+        <p class="text-gray-600 col-span-full">Hech qanday tashkilot topilmadi. Filtrlarni o‘zgartirib ko‘ring.</p>
+    {% endfor %}
+</div>
+{% endblock %}
+
+<!-- templates/navbat/book.html -->
+{% extends 'base.html' %}
+{% block title %}Navbat band qilish - {{ organization.name }}{% endblock %}
+{% block content %}
+<h1 class="text-3xl font-bold mb-6 text-gray-800">{{ organization.name }} uchun navbat band qilish</h1>
+<p class="text-gray-600 mb-4">{{ organization.address }}, {{ organization.region.name }}</p>
+
+{% if time_slots %}
+    <form method="POST" class="mb-6">
+        {% csrf_token %}
+        <label for="time_slot" class="block text-sm font-medium text-gray-700 mb-2">Bo‘sh vaqt oralig‘ini tanlang:</label>
+        <select name="time_slot" id="time_slot" class="p-2 border rounded w-full mb-4 focus:outline-none focus:ring-2 focus:ring-blue-600">
+            {% for slot in time_slots %}
+                <option value="{{ slot.id }}">{{ slot.start_time|date:"Y-m-d H:i" }} ({{ slot.duration }} daqiqa)</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition">Navbat band qilish</button>
+    </form>
+{% else %}
+    <p class="text-red-600 mb-4">Hozirda bo‘sh vaqt oralig‘lari mavjud emas. Keyinroq qayta urinib ko‘ring.</p>
+{% endif %}
+
+<a href="{% url 'organization_list' %}" class="text-blue-600 hover:underline">Tashkilotlar ro‘yxatiga qaytish</a>
+{% endblock %}
+
+<!-- templates/navbat/my_bookings.html -->

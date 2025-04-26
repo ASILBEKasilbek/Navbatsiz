@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}NavbatYo‘q.uz{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-gray-100 font-sans">
+    <header class="bg-blue-600 text-white p-4 shadow-md sticky top-0 z-10">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">
+                <a href="{% url 'homepage' %}">NavbatYo‘q.uz</a>
+            </h1>
+            <nav class="space-x-4">
+                <a href="{% url 'homepage' %}" class="hover:underline">Bosh sahifa</a>
+                <a href="{% url 'organization_list' %}" class="hover:underline">Tashkilotlar</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'my_bookings' %}" class="hover:underline">Mening navbatlarim</a>
+                    <a href="{% url 'logout' %}" class="hover:underline">Chiqish</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="hover:underline">Kirish</a>
+                    <a href="{% url 'signup' %}" class="hover:underline">Ro‘yxatdan o‘tish</a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+    
+    <main class="container mx-auto p-4 min-h-screen">
+        {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="p-4 mb-2 rounded {% if message.tags == 'success' %}bg-green-100 text-green-800{% elif message.tags == 'error' %}bg-red-100 text-red-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% block content %}
+        {% endblock %}
+    </main>
+    
+    <footer class="bg-gray-800 text-white p-4">
+        <div class="container mx-auto text-center">
+            <p>© 2025 NavbatYo‘q.uz. Barcha huquqlar himoyalangan.</p>
+            <p>
+                <a href="#" class="hover:underline">Foydalanish shartlari</a> | 
+                <a href="#" class="hover:underline">Maxfiylik siyosati</a>
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
